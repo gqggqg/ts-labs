@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+  
+<head>
+  <meta charset="UTF-8">
+  <title>Calculator</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <script src="script.js"></script>
+  <div class="wrapper">
+    <div class="container">     
+      <div class="row">
+        <input type="text" class="result" id="result" value="" readonly>
+        <input type="button" value="C" onclick="ClearResult()">
+      </div>
+      <div class="row">
+        <input type="button" value="7" onclick="InputChange('7')">
+        <input type="button" value="8" onclick="InputChange('8')">
+        <input type="button" value="9" onclick="InputChange('9')">
+        <input type="button" value="+" onclick="InputChange('+')">
+      </div>
+      <div class="row">
+        <input type="button" value="4" onclick="InputChange('4')">
+        <input type="button" value="5" onclick="InputChange('5')">
+        <input type="button" value="6" onclick="InputChange('6')">
+        <input type="button" value="-" onclick="InputChange('-')">
+      </div>
+      <div class="row">
+        <input type="button" value="1" onclick="InputChange('1')">
+        <input type="button" value="2" onclick="InputChange('2')">
+        <input type="button" value="3" onclick="InputChange('3')">
+        <input type="button" value="x" onclick="InputChange('*')">
+      </div>
+      <div class="row">
+        <input type="button" value="/" onclick="InputChange('/')">
+        <input type="button" value="0" onclick="InputChange('0')">
+        <input type="button" value="." onclick="InputChange('.')">
+        <input type="button" value="=" onclick="Calculate()">
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>
