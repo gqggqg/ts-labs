@@ -11,6 +11,6 @@ function InputChange(value: string): void {
 }
 
 function Calculate(): void {
-	(<HTMLInputElement>document.getElementById("result")).value = eval(input);
+	(<HTMLInputElement>document.getElementById("result")).value = window.eval(input);
 	input = "";
 }
