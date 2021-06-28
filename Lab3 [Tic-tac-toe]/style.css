@@ -1,0 +1,114 @@
+* {
+	font-family: sans-serif;
+	text-align: center;
+}
+
+body {
+	background-color: #0a007d;
+}
+
+.h1 {
+	margin: 40px auto;
+	font-size: 50px;
+	font-weight: bolder;
+	color: #00EAB8;
+}
+
+.container {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	width: 500px;
+	height: 500px;	
+	margin: 0 auto;
+	background-color: #00b48e;
+	border-radius: 10px;
+}
+
+.table {
+	width: 480px;
+	height: 480px;
+}
+
+.row {	
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	box-sizing: border-box;
+	width: 480px;
+	height: 160px;	
+}
+
+.row.first {
+	align-items: flex-start;
+}
+
+.row.last {
+	align-items: flex-end;
+}
+
+.cell {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	box-sizing: border-box;	
+	width: 155px;
+	height: 155px;		
+	background-color: #00EAB8;
+	border-radius: 10px;
+	box-shadow: rgba(0, 0, 0, 0.3) 0px 3px 6px 0px;	
+	cursor: pointer;
+	transition: 400ms ease;
+	font-weight: bold;
+	font-size: 0;
+}
+
+.cell:hover::before {
+	content: attr(hover);
+	color: #747474fa;
+	font-size: 90px;	
+	opacity: 0.3;
+	transform: scale(1.05);
+}
+
+.no-hover {
+	pointer-events: none;
+}
+
+.X::before {
+	content: "X";
+	font-size: 90px;
+	color: #006A54;
+}
+
+.O::before {
+	content: "O";
+	font-size: 90px;
+	color: #F0F1D3;
+}
+
+.message {  
+	display: none;
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: rgba(69, 133, 136, 0.5);
+}
+
+#winner {
+	margin-top: 670px;
+	font-size: 40px;
+	color: yellow;
+	text-shadow: 0 0 6px #ff0000;
+	top: 670px;
+}
+
+#restart {
+	padding: 10px;
+	font-size: 30px;	
+	border: none;
+	border-radius: 15px;
+	color: #5682a1;
+}
