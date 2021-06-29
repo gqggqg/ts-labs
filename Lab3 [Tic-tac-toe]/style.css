@@ -64,7 +64,7 @@ body {
 }
 
 .cell:hover::before {
-	content: attr(hover);
+	content: attr(hover-content);
 	color: #747474fa;
 	font-size: 90px;	
 	opacity: 0.3;
@@ -75,20 +75,23 @@ body {
 	pointer-events: none;
 }
 
-.X::before {
+.team-X::before {
 	content: "X";
 	font-size: 90px;
 	color: #006A54;
 }
 
-.O::before {
+.team-O::before {
 	content: "O";
 	font-size: 90px;
 	color: #F0F1D3;
 }
 
-.message {  
+.hidden {
 	display: none;
+}
+
+.message {  
 	position: absolute;
 	top: 0;
 	left: 0;

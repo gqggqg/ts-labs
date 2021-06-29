@@ -1,18 +1,29 @@
 let winType = [
-  [0, 1, 2],
-  [3, 4, 5],
-  [6, 7, 8],
-  [0, 3, 6],
-  [1, 4, 7],
-  [2, 5, 8],
-  [0, 4, 8],
-  [2, 4, 6],
+	[0, 1, 2],
+	[3, 4, 5],
+	[6, 7, 8],
+	[0, 3, 6],
+	[1, 4, 7],
+	[2, 5, 8],
+	[0, 4, 8],
+	[2, 4, 6],
+];
+
+let table = [
+	0, 0, 0,
+	0, 0, 0,
+	0, 0, 0,
 ];
 
 enum Player {
-	X = "X",
-	O = "O",
+	TEAM_X = "team-X",
+	TEAM_O = "team-O",
 }
+
+const HIDDEN_CLASS: string = "hidden";
+const NO_HOVER_CLASS: string = "no-hover";
+const DRAW_MESSAGE: string = "Ничья! ;)";
+const PARSE_INT_BASE: number = 10;
 
 let currentPlayer: Player;
 let isWin: boolean;
@@ -30,7 +41,7 @@ StartGame();
 function Init() {
 	
 	cells.forEach((cell) => {
-		cell.addEventListener("click", ClickCell);
+		cell.addEventListener("click", OnClickCell);
 	});
 
 	restart.addEventListener("click", StartGame);
@@ -39,55 +50,77 @@ function Init() {
 function StartGame() {
 	
 	step = 0;
-	message.style.display = "none";
-	currentPlayer = Player.X;
+	ResetTable();
+	currentPlayer = Player.TEAM_X;
 	
 	cells.forEach((element) => {
-		element.classList.remove(Player.X, Player.O, "no-hover");
+		element.classList.remove(Player.TEAM_X, Player.TEAM_O, NO_HOVER_CLASS);
 	});
 	
-	AddPlayerMarkToCells();
+	message.classList.add(HIDDEN_CLASS);
+	
+	UpdateGameField();
 }
 
-function ClickCell() {
+function ResetTable(): void {
+	for (let i = 0; i < table.length; i++) {
+		table[i] = 0;
+	}
+}
 
-	this.classList.add(currentPlayer);
+function OnClickCell() {
+
+	MarkOccupiedCell(this);
 	step++;
-
-	isWin = CheckWin();
 	
-	if (isWin) {
-		message.style.display = "block";
-		winner.innerHTML = "Игрок " + currentPlayer + " выиграл!";
+	if (IsWin()) {
+		DisplayMessage(`Игрок ${GetTeam()} выиграл!`);
 		return;
 	}
 
 	if (step === 9) {
-		message.style.display = "block";
-		winner.innerHTML = "Ничья";
+		DisplayMessage(DRAW_MESSAGE);
 		return;
 	}
 
-	currentPlayer = currentPlayer === Player.X ? Player.O : Player.X;
-
-	this.classList.add("no-hover");
-	AddPlayerMarkToCells();
+	currentPlayer = currentPlayer === Player.TEAM_X ? Player.TEAM_O : Player.TEAM_X;
+	UpdateGameField();
 }
 
-function CheckWin(): boolean {
+function MarkOccupiedCell(cell: HTMLDivElement): void {
+	let cellNumber = parseInt(cell.dataset.number, PARSE_INT_BASE);
+	if (isNaN(cellNumber)) {
+		alert("Invalid parse!");
+		return;
+	}
+	table[cellNumber] = currentPlayer == Player.TEAM_X ? 1 : 2;
 	
-	return winType.some((item) => {		
-		if (cells[item[0]].classList.contains(currentPlayer) &&
-			cells[item[1]].classList.contains(currentPlayer) &&
-			cells[item[2]].classList.contains(currentPlayer)) {
+	cell.classList.add(NO_HOVER_CLASS, currentPlayer);
+}
+
+function DisplayMessage(outputMessage: string): void {
+	message.classList.remove(HIDDEN_CLASS);
+	winner.textContent = outputMessage;
+}
+
+function IsWin(): boolean {
+	
+	return winType.some((item) => {
+		if (table[item[0]] != 0 &&
+			table[item[0]] == table[item[1]] &&
+			table[item[1]] == table[item[2]]) {
 			return true;
 		}
 	});
 }
 
-function AddPlayerMarkToCells() {
+function UpdateGameField() {
 
 	cells.forEach((cell) => {
-		cell.setAttribute("hover", currentPlayer);
+		cell.setAttribute("hover-content", GetTeam());
 	});
+}
+
+function GetTeam(): string {
+	return currentPlayer.slice(-1);
 }
