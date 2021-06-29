@@ -1,126 +1,159 @@
-let winType = [
-	[0, 1, 2],
-	[3, 4, 5],
-	[6, 7, 8],
-	[0, 3, 6],
-	[1, 4, 7],
-	[2, 5, 8],
-	[0, 4, 8],
-	[2, 4, 6],
-];
-
-let table = [
-	0, 0, 0,
-	0, 0, 0,
-	0, 0, 0,
-];
-
+const HIDDEN_CLASS: string = "hidden";
+const NO_HOVER_CLASS: string = "no-hover";
+const HOVER_CONTENT_ATTRIBUTE = "hover-content";
+const DRAW_MESSAGE: string = "Ничья! ;)";
+const PARSE_INT_BASE: number = 10;
+	
 enum Player {
 	TEAM_X = "team-X",
 	TEAM_O = "team-O",
 }
+	
+enum FieldMark {
+	NONE = 0,
+	TEAM_X = 1,
+	TEAM_O = 2,
+}
 
-const HIDDEN_CLASS: string = "hidden";
-const NO_HOVER_CLASS: string = "no-hover";
-const DRAW_MESSAGE: string = "Ничья! ;)";
-const PARSE_INT_BASE: number = 10;
+class Game {
+	
+	private static instance: Game;
+	
+	private readonly winType = [
+		[0, 1, 2],
+		[3, 4, 5],
+		[6, 7, 8],
+		[0, 3, 6],
+		[1, 4, 7],
+		[2, 5, 8],
+		[0, 4, 8],
+		[2, 4, 6],
+	];
 
-let currentPlayer: Player;
-let isWin: boolean;
-let step: number;
+	private currentPlayer: Player = Player.TEAM_X;
+	private step: number = 0;			
+	private cells = document.querySelectorAll(".cell");
+	private table = [
+		0, 0, 0,
+		0, 0, 0,
+		0, 0, 0,
+	];
+	
+	private displayMessage: (string) => void;
+	
+	private constructor() {	
+		this.cells.forEach((cell) => {
+			cell.addEventListener("click", (event: MouseEvent) => { 
+				this.OnClickHandler(event.target as HTMLElement); 
+			});
+		})
+	}
+	
+	public static Instance(): Game {
+		if (!Game.instance) {
+			Game.instance = new Game();
+		}
+		return Game.instance;
+	}
+	
+	public NewGame(callback: (string) => void): void {
+		this.displayMessage = callback;
+		
+		this.step = 0;
+		this.currentPlayer = Player.TEAM_X;
+		
+		this.ResetTable();
+		this.ResetCells();
+		
+		this.UpdateGameField();
+	}
+	
+	public OnClickHandler(element: HTMLElement): void {	
+		
+		element.classList.add(NO_HOVER_CLASS, this.currentPlayer);	
+		
+		let index = parseInt(element.dataset.index, PARSE_INT_BASE);
+		if (isNaN(index)) {
+			alert("Invalid parse!");
+			return;
+		}
+		
+		this.table[index] = 
+			this.currentPlayer == Player.TEAM_X 
+			? FieldMark.TEAM_X
+			: FieldMark.TEAM_O;
+	
+		this.step++;
+	
+		if (this.HasWinner()) {
+			this.displayMessage(`Игрок ${this.GetTeam()} выиграл!`);
+		}
 
-let message = document.querySelector("#message") as HTMLElement; // HTMLDivElement
-let restart = document.querySelector("#restart") as HTMLElement; // HTMLButtonElement
-let winner = document.querySelector("#winner") as HTMLElement; // HTMLParagraphElement
+		if (this.step == 9) {
+			this.displayMessage(DRAW_MESSAGE);
+		}
 
-let cells = document.querySelectorAll(".cell");
+		this.currentPlayer = 
+			this.currentPlayer == Player.TEAM_X 
+			? Player.TEAM_O 
+			: Player.TEAM_X;
+			
+		this.UpdateGameField();
+	}
+	
+	private HasWinner(): boolean {
+		return this.winType.some((item) => {
+			if (this.table[item[0]] != FieldMark.NONE &&
+				this.table[item[0]] == this.table[item[1]] &&
+				this.table[item[1]] == this.table[item[2]]) {
+				return true;
+			}
+		});
+	}
+	
+	private ResetTable(): void {
+		for (let i = 0; i < this.table.length; i++) {
+			this.table[i] = 0;
+		}
+	}
+	
+	private ResetCells(): void {
+		this.cells.forEach((cell) => {
+			cell.classList.remove(Player.TEAM_X, Player.TEAM_O, NO_HOVER_CLASS);
+		});
+	}
+	
+	private UpdateGameField(): void {
+		this.cells.forEach((cell) => {
+			cell.setAttribute(HOVER_CONTENT_ATTRIBUTE, this.GetTeam());
+		});
+	}
+	
+	private GetTeam(): string {
+		return this.currentPlayer.slice(-1);
+	}
+}
+	
+let game: Game;
+
+let message = document.querySelector("#message") as HTMLElement;
+let restart = document.querySelector("#restart") as HTMLElement;
+let winner = document.querySelector("#winner") as HTMLElement;
 
 Init();
 StartGame();
 
-function Init() {
-	
-	cells.forEach((cell) => {
-		cell.addEventListener("click", OnClickCell);
-	});
-
+function Init(): void {
+	game = Game.Instance();
 	restart.addEventListener("click", StartGame);
 }
 
-function StartGame() {
-	
-	step = 0;
-	ResetTable();
-	currentPlayer = Player.TEAM_X;
-	
-	cells.forEach((element) => {
-		element.classList.remove(Player.TEAM_X, Player.TEAM_O, NO_HOVER_CLASS);
-	});
-	
+function StartGame(): void {
+	game.NewGame(DisplayMessage);
 	message.classList.add(HIDDEN_CLASS);
-	
-	UpdateGameField();
 }
 
-function ResetTable(): void {
-	for (let i = 0; i < table.length; i++) {
-		table[i] = 0;
-	}
-}
-
-function OnClickCell() {
-
-	MarkOccupiedCell(this);
-	step++;
-	
-	if (IsWin()) {
-		DisplayMessage(`Игрок ${GetTeam()} выиграл!`);
-		return;
-	}
-
-	if (step === 9) {
-		DisplayMessage(DRAW_MESSAGE);
-		return;
-	}
-
-	currentPlayer = currentPlayer === Player.TEAM_X ? Player.TEAM_O : Player.TEAM_X;
-	UpdateGameField();
-}
-
-function MarkOccupiedCell(cell: HTMLDivElement): void {
-	let cellNumber = parseInt(cell.dataset.number, PARSE_INT_BASE);
-	if (isNaN(cellNumber)) {
-		alert("Invalid parse!");
-		return;
-	}
-	table[cellNumber] = currentPlayer == Player.TEAM_X ? 1 : 2;
-	
-	cell.classList.add(NO_HOVER_CLASS, currentPlayer);
-}
-
-function DisplayMessage(outputMessage: string): void {
+function DisplayMessage(text: string): void {
 	message.classList.remove(HIDDEN_CLASS);
-	winner.textContent = outputMessage;
-}
-
-function IsWin(): boolean {
-	
-	return winType.some((item) => {
-		if (table[item[0]] != 0 &&
-			table[item[0]] == table[item[1]] &&
-			table[item[1]] == table[item[2]]) {
-			return true;
-		}
-	});
-}
-
-function UpdateGameField() {
-
-	cells.forEach((cell) => {
-		cell.setAttribute("hover-content", GetTeam());
-	});
-}
-
-function GetTeam(): string {
-	return currentPlayer.slice(-1);
+	winner.textContent = text;
 }
